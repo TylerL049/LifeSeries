@@ -17,7 +17,7 @@ public enum Wildcards {
     TRIVIA,
     MOB_SWAP,
     SUPERPOWERS,
-    CALLBACK;
+    CALLBACK,
     GRAVITY_MANIPULATION;
 
 
