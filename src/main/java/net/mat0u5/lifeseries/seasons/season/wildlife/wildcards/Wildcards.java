@@ -18,6 +18,7 @@ public enum Wildcards {
     MOB_SWAP,
     SUPERPOWERS,
     CALLBACK;
+    GRAVITY_MANIPULATION;
 
 
     public Wildcard getInstance() {
@@ -29,6 +30,7 @@ public enum Wildcards {
         if (this == MOB_SWAP) return new MobSwap();
         if (this == SUPERPOWERS) return new SuperpowersWildcard();
         if (this == CALLBACK) return new Callback();
+        if (this == GRAVITY_MANIPULATION) return new GravityManipulation();
         return null;
     }
 
