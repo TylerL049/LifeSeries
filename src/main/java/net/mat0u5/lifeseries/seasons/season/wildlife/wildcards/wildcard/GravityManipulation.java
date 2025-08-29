@@ -2,9 +2,9 @@ package net.mat0u5.lifeseries.seasons.season.wildlife.wildcards.wildcard;
 
 import net.mat0u5.lifeseries.seasons.season.wildlife.wildcards.Wildcards;
 import net.mat0u5.lifeseries.utils.player.PlayerUtils;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.server.network.ServerPlayerEntity;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class GravityManipulation extends Wildcard {
 
@@ -34,14 +34,14 @@ public class GravityManipulation extends Wildcard {
         for (ServerPlayerEntity player : PlayerUtils.getAllFunctioningPlayers()) {
             if (player.isSpectator()) continue;
 
-            player.getBukkitEntity().addPotionEffect(
-                    new PotionEffect(PotionEffectType.JUMP, 40, jumpLevel - 1, true, false, true)
-            );
+            // Apply Jump Boost
+            StatusEffectInstance jumpEffect = new StatusEffectInstance(StatusEffects.JUMP_BOOST, 40, jumpLevel - 1, false, false, false);
+            player.addStatusEffect(jumpEffect);
 
+            // Apply Levitation after LEVITATION_START_TICKS
             if (tickCounter >= LEVITATION_START_TICKS) {
-                player.getBukkitEntity().addPotionEffect(
-                        new PotionEffect(PotionEffectType.LEVITATION, 40, levitationLevel, true, false, true)
-                );
+                StatusEffectInstance levitationEffect = new StatusEffectInstance(StatusEffects.LEVITATION, 40, levitationLevel, false, false, false);
+                player.addStatusEffect(levitationEffect);
             }
         }
     }
@@ -49,8 +49,8 @@ public class GravityManipulation extends Wildcard {
     @Override
     public void stop() {
         for (ServerPlayerEntity player : PlayerUtils.getAllPlayers()) {
-            player.getBukkitEntity().removePotionEffect(PotionEffectType.JUMP);
-            player.getBukkitEntity().removePotionEffect(PotionEffectType.LEVITATION);
+            player.removeStatusEffect(StatusEffects.JUMP_BOOST);
+            player.removeStatusEffect(StatusEffects.LEVITATION);
         }
         tickCounter = 0;
     }
