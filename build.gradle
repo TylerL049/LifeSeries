@@ -21,17 +21,16 @@ sourceSets {
 }
 
 loom {
-    splitEnvironmentSourceSets() // creates clientMain and serverMain automatically
+    splitEnvironmentSourceSets() // Loom will automatically create clientMain/serverMain
 
     mods {
         "lifeseries" {
-            sourceSet sourceSets.main
-            sourceSet sourceSets.clientMain // fix: use clientMain instead of client
+            sourceSet sourceSets.main // only main is needed
         }
     }
 
     runConfigs.all {
-        runDir "../../run" // Use a shared run folder
+        runDir "../../run"
     }
 }
 
@@ -132,7 +131,7 @@ publishing {
         }
     }
     repositories {
-        // add publishing repositories here
+        // Add publishing repositories here
     }
 }
 
