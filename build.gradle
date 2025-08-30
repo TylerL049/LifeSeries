@@ -11,26 +11,18 @@ base {
     archivesName = project.archives_base_name
 }
 
-// Include Stonecutter generated sources
-sourceSets {
-    main {
-        java {
-            srcDirs += ["build/generated/stonecutter/main/java"]
-        }
-    }
-}
-
 loom {
-    splitEnvironmentSourceSets() // Loom will automatically create clientMain/serverMain
+    splitEnvironmentSourceSets()
 
     mods {
         "lifeseries" {
-            sourceSet sourceSets.main // only main is needed
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
         }
     }
 
     runConfigs.all {
-        runDir "../../run"
+        runDir "../../run" // shared run folder
     }
 }
 
@@ -54,30 +46,59 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
 
-    if (project.polymer_version != "null") modImplementation include("eu.pb4:polymer-bundled:${project.polymer_version}")
-    if (project.blockbench_import_library_version != "null") modImplementation include("de.tomalbrc:blockbench-import-library:${project.blockbench_import_library_version}")
+    if (project.polymer_version != "null")
+        modImplementation include("eu.pb4:polymer-bundled:${project.polymer_version}")
+
+    if (project.blockbench_import_library_version != "null")
+        modImplementation include("de.tomalbrc:blockbench-import-library:${project.blockbench_import_library_version}")
 
     implementation "de.maxhenkel.voicechat:voicechat-api:${project.voicechat_api_version}"
-    if (project.voicechat_mod_version != "null") modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${project.voicechat_mod_version}"
-    if (project.carpet_mod_version != "null") modRuntimeOnly "maven.modrinth:carpet:${project.carpet_mod_version}"
+
+    if (project.voicechat_mod_version != "null")
+        modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${project.voicechat_mod_version}"
+
+    if (project.carpet_mod_version != "null")
+        modRuntimeOnly "maven.modrinth:carpet:${project.carpet_mod_version}"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}
+
+// Include Stonecutter generated sources
+sourceSets {
+    main {
+        java {
+            srcDirs += [
+                "build/generated/stonecutter/main/java",
+                "build/generated/stonecutter/client/java"
+            ]
+        }
+    }
+}
+
+// Ensure Stonecutter generation runs before compiling
+tasks.named('compileJava') {
+    dependsOn 'generateStonecutterSources'
+}
+tasks.named('compileClientJava') {
+    dependsOn 'generateStonecutterSources'
 }
 
 processResources {
     filesMatching("fabric.mod.json") {
-        expand "version": project.property('mod_version'),
-               "targetVersion": project.property('target_version'),
-               "minecraftVersion": stonecutter.current.version
+        expand(
+            "version": project.property('mod_version'),
+            "targetVersion": project.property('target_version'),
+            "minecraftVersion": stonecutter.current.version
+        )
     }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
-}
-
-java {
-    withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
@@ -103,6 +124,7 @@ publishMods {
             start = project.property('min_version')
             end = project.property('max_version')
         }
+
         requires("fabric-api")
         optional("simple-voice-chat")
     }
@@ -115,8 +137,10 @@ publishMods {
                 start = project.property('min_version')
                 end = project.property('max_version')
             }
+
             clientRequired = true
             serverRequired = true
+
             requires("fabric-api")
             optional("simple-voice-chat")
         }
@@ -129,9 +153,6 @@ publishing {
             artifactId = project.archives_base_name
             from components.java
         }
-    }
-    repositories {
-        // Add publishing repositories here
     }
 }
 
