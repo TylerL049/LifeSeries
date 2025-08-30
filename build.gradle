@@ -24,12 +24,11 @@ sourceSets {
             srcDirs += ["src/main/resources"]
         }
     }
+
+    // Don't redefine 'client'; just append directories
     client {
         java {
-            srcDirs += [
-                "src/main/java",
-                "build/generated/stonecutter/client/java"
-            ]
+            srcDirs += ["build/generated/stonecutter/client/java"]
         }
         resources {
             srcDirs += ["src/main/resources"]
