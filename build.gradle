@@ -11,30 +11,9 @@ base {
     archivesName = project.archives_base_name
 }
 
-// Include Stonecutter generated sources and normal sources
-sourceSets {
-    main {
-        java {
-            srcDirs += [
-                "src/main/java",
-                "build/generated/stonecutter/main/java"
-            ]
-        }
-        resources {
-            srcDirs += ["src/main/resources"]
-        }
-    }
-
-    // Don't redefine 'client'; just append directories
-    client {
-        java {
-            srcDirs += ["build/generated/stonecutter/client/java"]
-        }
-        resources {
-            srcDirs += ["src/main/resources"]
-        }
-    }
-}
+// Include Stonecutter generated sources
+sourceSets.main.java.srcDirs += ["build/generated/stonecutter/main/java"]
+sourceSets.client.java.srcDirs += ["build/generated/stonecutter/client/java"]
 
 loom {
     splitEnvironmentSourceSets()
@@ -47,7 +26,7 @@ loom {
     }
 
     runConfigs.all {
-        runDir "../../run" // Shared run folder
+        runDir "../../run" // Use a shared run folder and create separate worlds
     }
 }
 
@@ -149,6 +128,9 @@ publishing {
             artifactId = project.archives_base_name
             from components.java
         }
+    }
+    repositories {
+        // Add repositories to publish to here if needed
     }
 }
 
